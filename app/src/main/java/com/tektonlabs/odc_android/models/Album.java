@@ -13,6 +13,7 @@ public class Album {
     private String artworkUrl100;
     private Double collectionPrice;
     private int trackCount;
+    private String currency;
 
     public int getCollectionId() {
         return collectionId;
@@ -70,6 +71,14 @@ public class Album {
         this.trackCount = trackCount;
     }
 
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
     public static Album parseAlbum(JsonObject albumJson){
         return new Album.Builder(albumJson.get("collectionId").getAsInt()).
                     artistName(albumJson.get("artistName").getAsString()).
@@ -78,6 +87,7 @@ public class Album {
                     artworkUrl100(albumJson.get("artworkUrl100").getAsString()).
                     collectionPrice(albumJson.get("collectionPrice").getAsDouble()).
                     trackCount(albumJson.get("trackCount").getAsInt()).
+                    currency(albumJson.get("currency").getAsString()).
                     build();
     }
 
@@ -89,7 +99,7 @@ public class Album {
         private String mArtworkUrl100;
         private Double mCollectionPrice;
         private int mTrackCount;
-
+        private String mCurrency;
 
         public Builder(int id) {
             mCollectionId = id;
@@ -125,6 +135,11 @@ public class Album {
             return this;
         }
 
+        public Builder currency(String currency){
+            mCurrency = currency;
+            return this;
+        }
+
         public Album build() {
             Album album = new Album();
             album.setCollectionId(mCollectionId);
@@ -134,6 +149,7 @@ public class Album {
             album.setArtworkUrl100(mArtworkUrl100);
             album.setCollectionPrice(mCollectionPrice);
             album.setTrackCount(mTrackCount);
+            album.setCurrency(mCurrency);
             return album;
         }
 

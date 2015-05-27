@@ -3,6 +3,7 @@ package com.tektonlabs.odc_android;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.gson.FieldNamingPolicy;
@@ -12,6 +13,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.bind.DateTypeAdapter;
+import com.tektonlabs.odc_android.adapters.AlbumAdapter;
 import com.tektonlabs.odc_android.models.Album;
 import com.tektonlabs.odc_android.utils.Services;
 
@@ -30,14 +32,24 @@ public class MainActivity extends Activity {
 
     private Services services;
     private List<Album> albums;
+    private AlbumAdapter albumAdapter;
+
+    private ListView lv_albums;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        setupElements();
         setupServices();
         getDataRequest();
+    }
+
+    /* Setup Elements */
+
+    private void setupElements(){
+        lv_albums = (ListView)findViewById(R.id.lv_albums);
     }
 
     /**************************** RETROFIT ****************************/
@@ -90,6 +102,7 @@ public class MainActivity extends Activity {
             Album album = Album.parseAlbum(jsonObject);
             albums.add(album);
         }
+        setupAlbumAdapter();
     }
 
     /* Mostrando errores */
@@ -105,6 +118,13 @@ public class MainActivity extends Activity {
             }
         }
         Toast.makeText(this, error_message, Toast.LENGTH_LONG).show();
+    }
+
+
+    /**************************** LISTVIEW ****************************/
+    private void setupAlbumAdapter(){
+        albumAdapter = new AlbumAdapter( this,albums );
+        lv_albums.setAdapter(albumAdapter);
     }
 
 }

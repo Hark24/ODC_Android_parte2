@@ -3,4 +3,12 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+
+    <!-- Default values -->
+    <string name="list_albums">Lista de Albumes</string>
+    <string name="collection_name">Collection Name</string>
+    <string name="artist_name">Artist Name</string>
+    <string name="count_track">Tracks: 999</string>
+    <string name="price">USD 100.00</string>
+
 </resources>
