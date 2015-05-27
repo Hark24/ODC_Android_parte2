@@ -1,7 +1,8 @@
-package com.tektonlabs.odc_android;
+package com.tektonlabs.odc_android.activities;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -18,6 +19,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.bind.DateTypeAdapter;
+import com.tektonlabs.odc_android.R;
 import com.tektonlabs.odc_android.adapters.AlbumAdapter;
 import com.tektonlabs.odc_android.models.Album;
 import com.tektonlabs.odc_android.utils.Services;
@@ -165,9 +167,19 @@ public class MainActivity extends Activity {
 
     /**************************** LISTVIEW ****************************/
 
+    /* Setup Adapter a la Lista */
+
     private void setupAlbumAdapter(){
         AlbumAdapter albumAdapter = new AlbumAdapter(this, albums);
         lv_albums.setAdapter(albumAdapter);
+    }
+
+    /* Acción al hacer clic en un elemento */
+    public void onItemClick(int mPosition) {
+        Album tempValues = albums.get(mPosition);
+        Gson gson = new Gson();
+        String json = gson.toJson(tempValues);
+        openAlbumDetail(json);
     }
 
     /* Remover teclado */
@@ -176,6 +188,13 @@ public class MainActivity extends Activity {
         if(imm.isAcceptingText()) {
             imm.hideSoftInputFromWindow(et_search.getWindowToken(), 0);
         }
+    }
+
+    /* Abrir otra actividad */
+    private void openAlbumDetail(String albumDetail){
+        Intent intent = new Intent(this, AlbumDetailActivity.class);
+        intent.putExtra("ALBUM_DETAIL", albumDetail);
+        startActivity(intent);
     }
 
 }

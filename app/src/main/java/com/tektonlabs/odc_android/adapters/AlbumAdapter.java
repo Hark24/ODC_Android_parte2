@@ -8,16 +8,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+import com.tektonlabs.odc_android.activities.MainActivity;
 import com.tektonlabs.odc_android.R;
 import com.tektonlabs.odc_android.models.Album;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by rubymobile on 5/27/15.
  */
-public class AlbumAdapter extends BaseAdapter {
+public class AlbumAdapter extends BaseAdapter implements View.OnClickListener{
 
     private Activity activity;
     private List<Album> albums;
@@ -73,9 +73,32 @@ public class AlbumAdapter extends BaseAdapter {
             viewHolder.tv_track.setText("Tracks: " + album.getTrackCount());
             viewHolder.tv_price.setText(album.getCurrency()+ " "+ album.getCollectionPrice());
             Picasso.with(activity).load(album.getArtworkUrl100()).into(viewHolder.iv_cover);
+            v.setOnClickListener(new OnItemClickListener(position));
         }
 
         return v;
+    }
+
+    /* Métodos que reconocen el clic*/
+
+    @Override
+    public void onClick(View v) {
+
+    }
+
+    /********* Called when Item click in ListView ************/
+    private class OnItemClickListener  implements View.OnClickListener {
+        private int mPosition;
+
+        public OnItemClickListener(int position){
+            mPosition = position;
+        }
+
+        @Override
+        public void onClick(View arg0) {
+            MainActivity main = (MainActivity)activity;
+            main.onItemClick(mPosition);
+        }
     }
 
     /* Holder que contiene los elementos a mostrar en la fila de la lista*/

@@ -9,11 +9,15 @@ public class Album {
     private int collectionId;
     private String artistName;
     private String collectionName;
+    private String artistViewUrl;
     private String collectionViewUrl;
     private String artworkUrl100;
     private Double collectionPrice;
     private int trackCount;
+    private String country;
     private String currency;
+    private String releaseDate;
+    private String primaryGenreName;
 
     public int getCollectionId() {
         return collectionId;
@@ -79,6 +83,38 @@ public class Album {
         this.currency = currency;
     }
 
+    public String getArtistViewUrl() {
+        return artistViewUrl;
+    }
+
+    public void setArtistViewUrl(String artistViewUrl) {
+        this.artistViewUrl = artistViewUrl;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getReleaseDate() {
+        return releaseDate;
+    }
+
+    public void setReleaseDate(String releaseDate) {
+        this.releaseDate = releaseDate;
+    }
+
+    public String getPrimaryGenreName() {
+        return primaryGenreName;
+    }
+
+    public void setPrimaryGenreName(String primaryGenreName) {
+        this.primaryGenreName = primaryGenreName;
+    }
+
     public static Album parseAlbum(JsonObject albumJson){
         return new Album.Builder(albumJson.get("collectionId").getAsInt()).
                     artistName(albumJson.get("artistName").getAsString()).
@@ -95,11 +131,15 @@ public class Album {
         private int mCollectionId;
         private String mArtistName;
         private String mCollectionName;
+        private String mArtistViewUrl;
         private String mCollectionViewUrl;
         private String mArtworkUrl100;
         private Double mCollectionPrice;
         private int mTrackCount;
+        private String mCountry;
         private String mCurrency;
+        private String mReleaseDate;
+        private String mPrimaryGenreName;
 
         public Builder(int id) {
             mCollectionId = id;
@@ -112,6 +152,11 @@ public class Album {
 
         public Builder collectionName(String collectionName){
             mCollectionName = collectionName;
+            return this;
+        }
+
+        public Builder artistViewUrl(String artistViewUrl){
+            mArtistViewUrl = artistViewUrl;
             return this;
         }
 
@@ -135,6 +180,21 @@ public class Album {
             return this;
         }
 
+        public Builder country(String country){
+            mCountry = country;
+            return this;
+        }
+
+        public Builder releaseDate(String releaseDate){
+            mReleaseDate = releaseDate;
+            return this;
+        }
+
+        public Builder primaryGenreName(String primaryGenreName){
+            mPrimaryGenreName = primaryGenreName;
+            return this;
+        }
+
         public Builder currency(String currency){
             mCurrency = currency;
             return this;
@@ -145,12 +205,17 @@ public class Album {
             album.setCollectionId(mCollectionId);
             album.setArtistName(mArtistName);
             album.setCollectionName(mCollectionName);
+            album.setArtistViewUrl(mArtistViewUrl);
             album.setCollectionViewUrl(mCollectionViewUrl);
             album.setArtworkUrl100(mArtworkUrl100);
             album.setCollectionPrice(mCollectionPrice);
             album.setTrackCount(mTrackCount);
+            album.setCountry(mCountry);
             album.setCurrency(mCurrency);
+            album.setReleaseDate(mReleaseDate);
+            album.setPrimaryGenreName(mPrimaryGenreName);
             return album;
+
         }
 
     }
