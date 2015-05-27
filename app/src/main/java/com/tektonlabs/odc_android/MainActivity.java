@@ -1,9 +1,14 @@
 package com.tektonlabs.odc_android;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.FieldNamingPolicy;
@@ -32,9 +37,13 @@ public class MainActivity extends Activity {
 
     private Services services;
     private List<Album> albums;
-    private AlbumAdapter albumAdapter;
 
     private ListView lv_albums;
+    private EditText et_search;
+    private Button btn_search;
+    private TextView tv_not_found;
+
+    private ProgressDialog progress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,13 +52,36 @@ public class MainActivity extends Activity {
 
         setupElements();
         setupServices();
-        getDataRequest();
+        setupActions();
     }
 
     /* Setup Elements */
 
     private void setupElements(){
         lv_albums = (ListView)findViewById(R.id.lv_albums);
+        et_search = (EditText)findViewById(R.id.et_search);
+        btn_search = (Button)findViewById(R.id.btn_search);
+        tv_not_found = (TextView)findViewById(R.id.tv_not_found);
+
+        progress = new ProgressDialog(this);
+        progress.setTitle("En progreso");
+        progress.setMessage("Buscando ...");
+        progress.setIndeterminate(false);
+    }
+
+    /* Setup Actions*/
+    private void setupActions(){
+        btn_search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String search_term = et_search.getText().toString();
+                removeKeyboard();
+                if (!search_term.isEmpty()) {
+                    progress.show();
+                    getDataRequest(search_term);
+                }
+            }
+        });
     }
 
     /**************************** RETROFIT ****************************/
@@ -76,9 +108,9 @@ public class MainActivity extends Activity {
 
     /* Realizar el request y obtener la data  */
 
-    private void getDataRequest(){
+    private void getDataRequest(String term){
         albums=new ArrayList<>();
-        services.listAlbums("beatles", new Callback<JsonObject>() {
+        services.listAlbums(term, new Callback<JsonObject>() {
             @Override
             public void success(JsonObject jsonObject, Response response) {
                 if (response.getReason().equals("OK")) {
@@ -97,12 +129,22 @@ public class MainActivity extends Activity {
 
     private void successRequest(JsonObject responseJsonObject){
         JsonArray results = responseJsonObject.get("results").getAsJsonArray();
-        for(JsonElement responseObject : results){
-            JsonObject jsonObject = responseObject.getAsJsonObject();
-            Album album = Album.parseAlbum(jsonObject);
-            albums.add(album);
+        int num_results = responseJsonObject.get("resultCount").getAsInt();
+        if (num_results != 0){
+            tv_not_found.setVisibility(View.GONE);
+            lv_albums.setVisibility(View.VISIBLE);
+            for(JsonElement responseObject : results){
+                JsonObject jsonObject = responseObject.getAsJsonObject();
+                Album album = Album.parseAlbum(jsonObject);
+                albums.add(album);
+            }
+            setupAlbumAdapter();
         }
-        setupAlbumAdapter();
+        else{
+            tv_not_found.setVisibility(View.VISIBLE);
+            lv_albums.setVisibility(View.GONE);
+        }
+        progress.dismiss();
     }
 
     /* Mostrando errores */
@@ -118,13 +160,22 @@ public class MainActivity extends Activity {
             }
         }
         Toast.makeText(this, error_message, Toast.LENGTH_LONG).show();
+        progress.dismiss();
     }
 
-
     /**************************** LISTVIEW ****************************/
+
     private void setupAlbumAdapter(){
-        albumAdapter = new AlbumAdapter( this,albums );
+        AlbumAdapter albumAdapter = new AlbumAdapter(this, albums);
         lv_albums.setAdapter(albumAdapter);
+    }
+
+    /* Remover teclado */
+    private void removeKeyboard(){
+        InputMethodManager imm = (InputMethodManager)getSystemService(INPUT_METHOD_SERVICE);
+        if(imm.isAcceptingText()) {
+            imm.hideSoftInputFromWindow(et_search.getWindowToken(), 0);
+        }
     }
 
 }

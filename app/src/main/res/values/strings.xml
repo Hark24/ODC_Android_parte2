@@ -6,6 +6,9 @@
 
     <!-- Default values -->
     <string name="list_albums">Lista de Albumes</string>
+    <string name="search_text">Ingrese termino</string>
+    <string name="search_button">Buscar</string>
+    <string name="not_found">No existen coincidencias</string>
     <string name="collection_name">Collection Name</string>
     <string name="artist_name">Artist Name</string>
     <string name="count_track">Tracks: 999</string>
