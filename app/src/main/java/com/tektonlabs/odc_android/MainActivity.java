@@ -1,38 +1,83 @@
 package com.tektonlabs.odc_android;
 
-import android.support.v7.app.ActionBarActivity;
+import android.app.Activity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.util.Log;
 
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.internal.bind.DateTypeAdapter;
+import com.tektonlabs.odc_android.models.Album;
+import com.tektonlabs.odc_android.utils.Services;
 
-public class MainActivity extends ActionBarActivity {
+import java.util.Date;
+import java.util.List;
+
+import retrofit.Callback;
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
+import retrofit.client.UrlConnectionClient;
+import retrofit.converter.GsonConverter;
+
+public class MainActivity extends Activity {
+
+    private Services services;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        setupServices();
+        getDataRequest();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    private void setupServices(){
+        Gson gson = new GsonBuilder()
+                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                .registerTypeAdapter(Date.class, new DateTypeAdapter())
+                .create();
+
+        UrlConnectionClient urlClient = new UrlConnectionClient();
+
+        RestAdapter restAdapter = new RestAdapter.Builder()
+                .setEndpoint("https://itunes.apple.com")
+                .setLogLevel(RestAdapter.LogLevel.FULL)
+                .setClient(urlClient)
+                .setConverter(new GsonConverter(gson))
+                .build();
+
+        services = restAdapter.create(Services.class);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+    private void getDataRequest(){
+        services.listAlbums("beatles", new Callback<JsonObject>() {
+            @Override
+            public void success(JsonObject jsonObject, Response response) {
+                if (response.getReason().equals("OK")) {
+                    successRequest(jsonObject);
+                }
+            }
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+            @Override
+            public void failure(RetrofitError error) {
+                Log.e("ERROR", error.getMessage());
+            }
+        });
+    }
+
+    private void successRequest(JsonObject responseJsonObject){
+        JsonArray results = responseJsonObject.get("results").getAsJsonArray();
+        for(JsonElement responseObject : results){
+            JsonObject jsonObject = responseObject.getAsJsonObject();
+            Album album = Album.parseAlbum(jsonObject);
+            Log.e("Album", album.toString());
         }
-
-        return super.onOptionsItemSelected(item);
     }
+
 }
