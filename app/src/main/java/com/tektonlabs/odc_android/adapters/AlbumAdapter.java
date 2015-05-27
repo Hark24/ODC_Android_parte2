@@ -7,6 +7,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.squareup.picasso.Picasso;
 import com.tektonlabs.odc_android.R;
 import com.tektonlabs.odc_android.models.Album;
 
@@ -71,6 +72,7 @@ public class AlbumAdapter extends BaseAdapter {
             viewHolder.tv_collection.setText(album.getCollectionName());
             viewHolder.tv_track.setText("Tracks: " + album.getTrackCount());
             viewHolder.tv_price.setText(album.getCurrency()+ " "+ album.getCollectionPrice());
+            Picasso.with(activity).load(album.getArtworkUrl100()).into(viewHolder.iv_cover);
         }
 
         return v;
