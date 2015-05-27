@@ -3,6 +3,7 @@ package com.tektonlabs.odc_android;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
@@ -14,6 +15,7 @@ import com.google.gson.internal.bind.DateTypeAdapter;
 import com.tektonlabs.odc_android.models.Album;
 import com.tektonlabs.odc_android.utils.Services;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -27,6 +29,7 @@ import retrofit.converter.GsonConverter;
 public class MainActivity extends Activity {
 
     private Services services;
+    private List<Album> albums;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +39,10 @@ public class MainActivity extends Activity {
         setupServices();
         getDataRequest();
     }
+
+    /**************************** RETROFIT ****************************/
+
+    /* Configuracion de Retrofit */
 
     private void setupServices(){
         Gson gson = new GsonBuilder()
@@ -55,7 +62,10 @@ public class MainActivity extends Activity {
         services = restAdapter.create(Services.class);
     }
 
+    /* Realizar el request y obtener la data  */
+
     private void getDataRequest(){
+        albums=new ArrayList<>();
         services.listAlbums("beatles", new Callback<JsonObject>() {
             @Override
             public void success(JsonObject jsonObject, Response response) {
@@ -66,18 +76,35 @@ public class MainActivity extends Activity {
 
             @Override
             public void failure(RetrofitError error) {
-                Log.e("ERROR", error.getMessage());
+                failedRequest(error);
             }
         });
     }
+
+    /* Consulta sin errores */
 
     private void successRequest(JsonObject responseJsonObject){
         JsonArray results = responseJsonObject.get("results").getAsJsonArray();
         for(JsonElement responseObject : results){
             JsonObject jsonObject = responseObject.getAsJsonObject();
             Album album = Album.parseAlbum(jsonObject);
-            Log.e("Album", album.toString());
+            albums.add(album);
         }
+    }
+
+    /* Mostrando errores */
+
+    private void failedRequest(RetrofitError error){
+        String error_message = "ERROR";
+        if (error.getResponse() != null) {
+            error_message = error.getMessage();
+        }
+        else{
+            if (error.getKind().equals(RetrofitError.Kind.NETWORK)){
+                error_message = "Problem with internet connection";
+            }
+        }
+        Toast.makeText(this, error_message, Toast.LENGTH_LONG).show();
     }
 
 }
