@@ -26,6 +26,12 @@
             android:screenOrientation="portrait"
             android:label="@string/app_name">
         </activity>
+
+        <activity
+            android:name=".activities.SongDetailActivity"
+            android:screenOrientation="portrait"
+            android:label="@string/app_name">
+        </activity>
     </application>
 
 </manifest>

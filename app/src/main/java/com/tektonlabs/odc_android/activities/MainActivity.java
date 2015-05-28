@@ -55,6 +55,9 @@ public class MainActivity extends Activity {
 
     private String entity;
 
+    String SONG = "song";
+    String ALBUM = "album";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,16 +106,16 @@ public class MainActivity extends Activity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if(position == 0){
-                    entity = "album";
+                    entity = ALBUM;
                 }
                 else{
-                    entity = "song";
+                    entity = SONG;
                 }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                entity = "album";
+                entity = ALBUM;
             }
         });
     }
@@ -217,11 +220,20 @@ public class MainActivity extends Activity {
 //            // TODO: handle exception
 //        }
 
-        Media tempValues = medias.get(mPosition);
-        Gson gson = new Gson();
-        String json = gson.toJson(tempValues);
-        openAlbumDetail(json);
+        Media mediaSelected = medias.get(mPosition);
+//        Gson gson = new Gson();
+//        String json = gson.toJson(tempValues);
+        if (entity.equals(SONG)){
+
+            openSongPlayer(mediaSelected);
+
+        }else {
+
+            openAlbumDetail(mediaSelected);
+        }
     }
+
+
 
     /* Remover teclado */
     private void removeKeyboard(){
@@ -232,9 +244,20 @@ public class MainActivity extends Activity {
     }
 
     /* Abrir otra actividad */
-    private void openAlbumDetail(String albumDetail){
+
+    private void openSongPlayer(Media songDetail) {
+        Intent intent = new Intent(this, SongDetailActivity.class);
+        intent.putExtra("ARTIST", songDetail.getArtistName());
+        intent.putExtra("SONG_NAME", songDetail.getCollectionName());
+        intent.putExtra("PREVIEW_URL", songDetail.getPreviewUrl());
+        intent.putExtra("IMAGE", songDetail.getArtworkUrl100());
+        startActivity(intent);
+    }
+
+    private void openAlbumDetail(Media albumDetail){
         Intent intent = new Intent(this, AlbumDetailActivity.class);
-        intent.putExtra("ALBUM_DETAIL", albumDetail);
+
+       // intent.putExtra("ALBUM_DETAIL", albumDetail);
         startActivity(intent);
     }
 
