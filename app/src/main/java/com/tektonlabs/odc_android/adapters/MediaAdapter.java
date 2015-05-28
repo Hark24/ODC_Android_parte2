@@ -10,39 +10,39 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 import com.tektonlabs.odc_android.activities.MainActivity;
 import com.tektonlabs.odc_android.R;
-import com.tektonlabs.odc_android.models.Album;
+import com.tektonlabs.odc_android.models.Media;
 
 import java.util.List;
 
 /**
  * Created by rubymobile on 5/27/15.
  */
-public class AlbumAdapter extends BaseAdapter implements View.OnClickListener{
+public class MediaAdapter extends BaseAdapter implements View.OnClickListener{
 
     private Activity activity;
-    private List<Album> albums;
+    private List<Media> medias;
 
     /* Constructor */
-    public AlbumAdapter(Activity activity, List<Album> albums) {
+    public MediaAdapter(Activity activity, List<Media> medias) {
         this.activity = activity;
-        this.albums = albums;
+        this.medias = medias;
     }
 
     /* Metodos del BaseAdapter */
 
     @Override
     public int getCount() {
-        return albums.size();
+        return medias.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return albums.get(position);
+        return medias.get(position);
     }
 
     @Override
     public long getItemId(int position) {
-        return albums.get(position).getCollectionId();
+        return medias.get(position).getCollectionId();
     }
 
     @Override
@@ -66,27 +66,32 @@ public class AlbumAdapter extends BaseAdapter implements View.OnClickListener{
             viewHolder = (ViewHolder) v.getTag();
         }
 
-        if(albums.size() >= 0){
-            Album album = albums.get(position);
-            viewHolder.tv_artist.setText(album.getArtistName());
-            viewHolder.tv_collection.setText(album.getCollectionName());
-            viewHolder.tv_track.setText("Tracks: " + album.getTrackCount());
-            viewHolder.tv_price.setText(album.getCurrency()+ " "+ album.getCollectionPrice());
-            Picasso.with(activity).load(album.getArtworkUrl100()).into(viewHolder.iv_cover);
+        if(medias.size() >= 0){
+            Media media = medias.get(position);
+            viewHolder.tv_artist.setText(media.getArtistName());
+            if (media.getWrapperType().equals("collection")){
+                viewHolder.tv_collection.setText(media.getCollectionName());
+            }
+            else{
+                viewHolder.tv_collection.setText(media.getTrackName());
+            }
+            viewHolder.tv_track.setText("Tracks: " + media.getTrackCount());
+            viewHolder.tv_price.setText(media.getCurrency()+ " "+ media.getCollectionPrice());
+            Picasso.with(activity).load(media.getArtworkUrl100()).into(viewHolder.iv_cover);
             v.setOnClickListener(new OnItemClickListener(position));
         }
 
         return v;
     }
 
-    /* Métodos que reconocen el clic*/
+    /* Métodos que reconocen el clic */
 
     @Override
     public void onClick(View v) {
 
     }
 
-    /********* Called when Item click in ListView ************/
+    /* Se llama cuando se hace clic a un elemento del ListView */
     private class OnItemClickListener  implements View.OnClickListener {
         private int mPosition;
 

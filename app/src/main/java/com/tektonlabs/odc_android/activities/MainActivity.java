@@ -3,12 +3,17 @@ package com.tektonlabs.odc_android.activities;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,8 +25,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.bind.DateTypeAdapter;
 import com.tektonlabs.odc_android.R;
-import com.tektonlabs.odc_android.adapters.AlbumAdapter;
-import com.tektonlabs.odc_android.models.Album;
+import com.tektonlabs.odc_android.adapters.MediaAdapter;
+import com.tektonlabs.odc_android.models.Media;
 import com.tektonlabs.odc_android.utils.Services;
 
 import java.util.ArrayList;
@@ -38,14 +43,17 @@ import retrofit.converter.GsonConverter;
 public class MainActivity extends Activity {
 
     private Services services;
-    private List<Album> albums;
+    private List<Media> medias;
 
-    private ListView lv_albums;
+    private ListView lv_media;
     private EditText et_search;
     private Button btn_search;
     private TextView tv_not_found;
+    private Spinner spn_options;
 
     private ProgressDialog progress;
+
+    private String entity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,15 +68,21 @@ public class MainActivity extends Activity {
     /* Setup Elements */
 
     private void setupElements(){
-        lv_albums = (ListView)findViewById(R.id.lv_albums);
+        lv_media = (ListView)findViewById(R.id.lv_albums);
         et_search = (EditText)findViewById(R.id.et_search);
         btn_search = (Button)findViewById(R.id.btn_search);
         tv_not_found = (TextView)findViewById(R.id.tv_not_found);
+        spn_options = (Spinner) findViewById(R.id.spn_options);
 
         progress = new ProgressDialog(this);
         progress.setTitle("En progreso");
         progress.setMessage("Buscando ...");
         progress.setIndeterminate(false);
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.options_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spn_options.setAdapter(adapter);
     }
 
     /* Setup Actions*/
@@ -82,6 +96,23 @@ public class MainActivity extends Activity {
                     progress.show();
                     getDataRequest(search_term);
                 }
+            }
+        });
+
+        spn_options.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if(position == 0){
+                    entity = "album";
+                }
+                else{
+                    entity = "song";
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                entity = "album";
             }
         });
     }
@@ -111,8 +142,8 @@ public class MainActivity extends Activity {
     /* Realizar el request y obtener la data  */
 
     private void getDataRequest(String term){
-        albums=new ArrayList<>();
-        services.listAlbums(term, new Callback<JsonObject>() {
+        medias =new ArrayList<>();
+        services.listAlbums(term, entity, new Callback<JsonObject>() {
             @Override
             public void success(JsonObject jsonObject, Response response) {
                 if (response.getReason().equals("OK")) {
@@ -134,17 +165,17 @@ public class MainActivity extends Activity {
         int num_results = responseJsonObject.get("resultCount").getAsInt();
         if (num_results != 0){
             tv_not_found.setVisibility(View.GONE);
-            lv_albums.setVisibility(View.VISIBLE);
+            lv_media.setVisibility(View.VISIBLE);
             for(JsonElement responseObject : results){
                 JsonObject jsonObject = responseObject.getAsJsonObject();
-                Album album = Album.parseAlbum(jsonObject);
-                albums.add(album);
+                Media media = Media.parseMedia(jsonObject);
+                medias.add(media);
             }
             setupAlbumAdapter();
         }
         else{
             tv_not_found.setVisibility(View.VISIBLE);
-            lv_albums.setVisibility(View.GONE);
+            lv_media.setVisibility(View.GONE);
         }
         progress.dismiss();
     }
@@ -170,13 +201,23 @@ public class MainActivity extends Activity {
     /* Setup Adapter a la Lista */
 
     private void setupAlbumAdapter(){
-        AlbumAdapter albumAdapter = new AlbumAdapter(this, albums);
-        lv_albums.setAdapter(albumAdapter);
+        MediaAdapter mediaAdapter = new MediaAdapter(this, medias);
+        lv_media.setAdapter(mediaAdapter);
     }
 
     /* Acción al hacer clic en un elemento */
     public void onItemClick(int mPosition) {
-        Album tempValues = albums.get(mPosition);
+//        try {
+//            MediaPlayer player = new MediaPlayer();
+//            player.setAudioStreamType(AudioManager.STREAM_MUSIC);
+//            player.setDataSource("http://a1083.phobos.apple.com/us/r1000/014/Music/v4/4e/44/b7/4e44b7dc-aaa2-c63b-fb38-88e1635b5b29/mzaf_1844128138535731917.plus.aac.p.m4a");
+//            player.prepare();
+//            player.start();
+//        } catch (Exception e) {
+//            // TODO: handle exception
+//        }
+
+        Media tempValues = medias.get(mPosition);
         Gson gson = new Gson();
         String json = gson.toJson(tempValues);
         openAlbumDetail(json);

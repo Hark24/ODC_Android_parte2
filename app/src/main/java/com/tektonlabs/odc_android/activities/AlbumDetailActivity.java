@@ -24,7 +24,7 @@ public class AlbumDetailActivity extends Activity {
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             albumDetailJson = extras.getString("ALBUM_DETAIL");
-            Log.e("Album DETAIL", albumDetailJson);
+            Log.e("Media DETAIL", albumDetailJson);
         }
     }
 }

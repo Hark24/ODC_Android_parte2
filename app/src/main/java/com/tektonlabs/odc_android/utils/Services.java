@@ -9,6 +9,6 @@ import retrofit.http.GET;
 import retrofit.http.Query;
 
 public interface Services {
-    @GET("/search?media=music&entity=album")
-    void listAlbums(@Query("term") String term,  Callback<JsonObject> callback);
+    @GET("/search?media=music")
+    void listAlbums(@Query("term") String term, @Query("entity") String entity, Callback<JsonObject> callback);
 }
