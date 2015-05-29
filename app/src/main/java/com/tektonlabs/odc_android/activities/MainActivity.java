@@ -3,8 +3,6 @@ package com.tektonlabs.odc_android.activities;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -41,7 +39,6 @@ import retrofit.client.UrlConnectionClient;
 import retrofit.converter.GsonConverter;
 
 public class MainActivity extends Activity {
-
     private Services services;
     private List<Media> medias;
 
@@ -54,6 +51,9 @@ public class MainActivity extends Activity {
     private ProgressDialog progress;
 
     private String entity;
+
+    private String SONG = "song";
+    private String ALBUM = "album";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,7 +80,7 @@ public class MainActivity extends Activity {
         progress.setIndeterminate(false);
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.options_array, android.R.layout.simple_spinner_item);
+                                        R.array.options_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spn_options.setAdapter(adapter);
     }
@@ -103,16 +103,16 @@ public class MainActivity extends Activity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if(position == 0){
-                    entity = "album";
+                    entity = ALBUM;
                 }
                 else{
-                    entity = "song";
+                    entity = SONG;
                 }
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                entity = "album";
+                entity = ALBUM;
             }
         });
     }
@@ -207,20 +207,12 @@ public class MainActivity extends Activity {
 
     /* Acción al hacer clic en un elemento */
     public void onItemClick(int mPosition) {
-//        try {
-//            MediaPlayer player = new MediaPlayer();
-//            player.setAudioStreamType(AudioManager.STREAM_MUSIC);
-//            player.setDataSource("http://a1083.phobos.apple.com/us/r1000/014/Music/v4/4e/44/b7/4e44b7dc-aaa2-c63b-fb38-88e1635b5b29/mzaf_1844128138535731917.plus.aac.p.m4a");
-//            player.prepare();
-//            player.start();
-//        } catch (Exception e) {
-//            // TODO: handle exception
-//        }
-
-        Media tempValues = medias.get(mPosition);
-        Gson gson = new Gson();
-        String json = gson.toJson(tempValues);
-        openAlbumDetail(json);
+        Media mediaSelected = medias.get(mPosition);
+        if (entity.equals(SONG)){
+            openSongPlayer(mediaSelected);
+        }else {
+            openAlbumDetail(mediaSelected);
+        }
     }
 
     /* Remover teclado */
@@ -232,9 +224,21 @@ public class MainActivity extends Activity {
     }
 
     /* Abrir otra actividad */
-    private void openAlbumDetail(String albumDetail){
+
+    private void openSongPlayer(Media songDetail) {
+        Intent intent = new Intent(this, SongDetailActivity.class);
+        intent.putExtra("ARTIST", songDetail.getArtistName());
+        intent.putExtra("SONG_NAME", songDetail.getTrackName());
+        intent.putExtra("PREVIEW_URL", songDetail.getPreviewUrl());
+        intent.putExtra("IMAGE", songDetail.getArtworkUrl100());
+        startActivity(intent);
+    }
+
+    private void openAlbumDetail(Media albumDetail){
         Intent intent = new Intent(this, AlbumDetailActivity.class);
-        intent.putExtra("ALBUM_DETAIL", albumDetail);
+        Gson gson = new Gson();
+        String json = gson.toJson(albumDetail);
+        intent.putExtra("ALBUM_DETAIL", json);
         startActivity(intent);
     }
 
